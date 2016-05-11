@@ -17,7 +17,6 @@
         tools:text="Msg"
         android:id="@+id/tvMsg"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
         android:textSize="40dp"
         android:textColor="@android:color/white"
         android:background="#64000000"

@@ -91,6 +91,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
     @Override
     protected void onResume()
     {
+        //Logger.info("onResume");
         super.onResume();
         m_camera = CameraEx.open(0, null);
         m_surfaceHolder.addCallback(this);
@@ -102,6 +103,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
             @Override
             public void onChanged(CameraEx.FocusPosition focusPosition, CameraEx cameraEx)
             {
+                //Logger.info("FocusDriveListener: currentPosition " + focusPosition.currentPosition);
                 m_focusScaleView.setMaxPosition(focusPosition.maxPosition);
                 m_focusScaleView.setCurPosition(focusPosition.currentPosition);
                 m_curFocus = focusPosition.currentPosition;
@@ -110,10 +112,8 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
                     if (m_curFocus == m_focusQueue.getFirst())
                     {
                         // Focused, take picture
-                        m_tvMsg.setVisibility(View.GONE);
-                        m_waitingForFocus = false;
-                        m_handler.removeCallbacks(m_checkFocusRunnable);
-                        m_camera.burstableTakePicture();
+                        //Logger.info("Taking picture (FocusDriveListener)");
+                        takePicture();
                     }
                     else
                         focus();
@@ -122,7 +122,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
         });
 
         setDefaults();
-        initControlsFromState();
+        setState(State.setMin);
     }
 
     // CameraEx.ShutterListener
@@ -130,6 +130,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
     public void onShutter(int i, CameraEx cameraEx)
     {
         // i: 0 = success, 1 = canceled, 2 = error
+        //Logger.info("onShutter (i " + i + ")");
         m_camera.cancelTakePicture();
         if (i == 0)
         {
@@ -149,14 +150,22 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
         }
     }
 
+    private void takePicture()
+    {
+        m_tvMsg.setVisibility(View.GONE);
+        m_waitingForFocus = false;
+        m_handler.removeCallbacks(m_checkFocusRunnable);
+        m_camera.burstableTakePicture();
+    }
+
     private void focus()
     {
         final int nextFocus = m_focusQueue.getFirst();
         m_focusBeforeDrive = m_curFocus;
         if (m_curFocus == nextFocus)
         {
-            m_waitingForFocus = false;
-            m_camera.burstableTakePicture();
+            //Logger.info("Taking picture (focus)");
+            takePicture();
         }
         else
         {
@@ -170,6 +179,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
                 speed = 2;
             else
                 speed = 1;
+            //Logger.info("Starting focus drive (speed " + speed + ")");
             m_camera.startOneShotFocusDrive(m_curFocus < nextFocus ? CameraEx.FOCUS_DRIVE_DIRECTION_FAR : CameraEx.FOCUS_DRIVE_DIRECTION_NEAR, speed);
             // startOneShotFocusDrive won't always trigger our FocusDriveListener
             m_handler.postDelayed(m_checkFocusRunnable, 50);
@@ -261,6 +271,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
         params.setSceneMode(CameraEx.ParametersModifier.SCENE_MODE_MANUAL_EXPOSURE);
         modifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_SINGLE);
         params.setFocusMode(CameraEx.ParametersModifier.FOCUS_MODE_MANUAL);
+        modifier.setSelfTimer(0);
         m_camera.getNormalCamera().setParameters(params);
 
         /*
@@ -337,8 +348,9 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
     }
 
     @Override
-    protected boolean onEnterKeyUp()
+    protected boolean onEnterKeyDown()
     {
+        // Don't use onEnterKeyUp - we sometimes get an onEnterKeyUp event when launching the app
         switch (m_state)
         {
             case setMin:
@@ -365,8 +377,16 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
     }
 
     @Override
+    protected boolean onMenuKeyUp()
+    {
+        onBackPressed();
+        return true;
+    }
+
+    @Override
     protected void onPause()
     {
+        //Logger.info("onPause");
         super.onPause();
 
         abortShooting();
