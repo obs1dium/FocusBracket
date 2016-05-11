@@ -10,6 +10,6 @@ Use [Sony-PMCA-RE](https://github.com/ma1co/Sony-PMCA-RE).
 ## Usage ##
 * Put your camera into manual mode and set up your shot. Auto review should be disabled.
 * Start the app and follow the on-screen instructions.
-* Help/Trash button exits the app.
+* Help/Trash or menu button exits the app.
 
 Only tested on the A5100 w/ kit lens.
