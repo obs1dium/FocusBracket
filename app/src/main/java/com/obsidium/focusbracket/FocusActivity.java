@@ -153,6 +153,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
     private void takePicture()
     {
         m_tvMsg.setVisibility(View.GONE);
+        m_tvInstructions.setVisibility(View.GONE);
         m_waitingForFocus = false;
         m_handler.removeCallbacks(m_checkFocusRunnable);
         m_camera.burstableTakePicture();
@@ -191,6 +192,8 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
         m_waitingForFocus = true;
         m_tvMsg.setText("Focusing...");
         m_tvMsg.setVisibility(View.VISIBLE);
+        m_tvInstructions.setText(String.format("%d remaining", m_focusQueue.size()));
+        m_tvInstructions.setVisibility(View.VISIBLE);
         focus();
     }
 
