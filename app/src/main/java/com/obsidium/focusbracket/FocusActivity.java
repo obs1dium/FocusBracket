@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.github.ma1co.pmcademo.app.BaseActivity;
@@ -25,7 +27,8 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
 
     private Handler             m_handler = new Handler();
 
-    private FocusScaleView m_focusScaleView;
+    private FocusScaleView      m_focusScaleView;
+    private LinearLayout        m_lFocusScale;
     private TextView            m_tvMsg;
     private TextView            m_tvInstructions;
 
@@ -44,7 +47,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
     private boolean             m_waitingForFocus;
 
     private int                 m_countdown;
-    private Runnable            m_countDownRunnable = new Runnable()
+    private final Runnable      m_countDownRunnable = new Runnable()
     {
         @Override
         public void run()
@@ -62,7 +65,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
         }
     };
 
-    private Runnable            m_checkFocusRunnable = new Runnable()
+    private final Runnable      m_checkFocusRunnable = new Runnable()
     {
         @Override
         public void run()
@@ -71,6 +74,10 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
                 focus();
         }
     };
+
+    // Built-in images
+    private static final int p_16_dd_parts_rec_focuscontrol_near = 0x01080ddd;
+    private static final int p_16_dd_parts_rec_focuscontrol_far = 0x010807f9;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -84,6 +91,8 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
 
         m_focusScaleView = (FocusScaleView)findViewById(R.id.vFocusScale);
 
+        m_lFocusScale = (LinearLayout)findViewById(R.id.lFocusScale);
+
         m_tvMsg = (TextView)findViewById(R.id.tvMsg);
         m_tvInstructions = (TextView)findViewById(R.id.tvInstructions);
     }
@@ -91,10 +100,14 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
     @Override
     protected void onResume()
     {
-        //Logger.info("onResume");
         super.onResume();
         m_camera = CameraEx.open(0, null);
         m_surfaceHolder.addCallback(this);
+
+        //noinspection ResourceType
+        ((ImageView)findViewById(R.id.ivRight)).setImageResource(p_16_dd_parts_rec_focuscontrol_far);
+        //noinspection ResourceType
+        ((ImageView)findViewById(R.id.ivLeft)).setImageResource(p_16_dd_parts_rec_focuscontrol_near);
 
         m_camera.setShutterListener(this);
 
@@ -103,7 +116,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
             @Override
             public void onChanged(CameraEx.FocusPosition focusPosition, CameraEx cameraEx)
             {
-                //Logger.info("FocusDriveListener: currentPosition " + focusPosition.currentPosition);
+                Logger.info("FocusDriveListener: currentPosition " + focusPosition.currentPosition);
                 m_focusScaleView.setMaxPosition(focusPosition.maxPosition);
                 m_focusScaleView.setCurPosition(focusPosition.currentPosition);
                 m_curFocus = focusPosition.currentPosition;
@@ -112,7 +125,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
                     if (m_curFocus == m_focusQueue.getFirst())
                     {
                         // Focused, take picture
-                        //Logger.info("Taking picture (FocusDriveListener)");
+                        Logger.info("Taking picture (FocusDriveListener)");
                         takePicture();
                     }
                     else
@@ -130,7 +143,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
     public void onShutter(int i, CameraEx cameraEx)
     {
         // i: 0 = success, 1 = canceled, 2 = error
-        //Logger.info("onShutter (i " + i + ")");
+        Logger.info("onShutter (i " + i + ")");
         m_camera.cancelTakePicture();
         if (i == 0)
         {
@@ -165,7 +178,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
         m_focusBeforeDrive = m_curFocus;
         if (m_curFocus == nextFocus)
         {
-            //Logger.info("Taking picture (focus)");
+            Logger.info("Taking picture (focus)");
             takePicture();
         }
         else
@@ -180,7 +193,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
                 speed = 2;
             else
                 speed = 1;
-            //Logger.info("Starting focus drive (speed " + speed + ")");
+            Logger.info("Starting focus drive (speed " + speed + ")");
             m_camera.startOneShotFocusDrive(m_curFocus < nextFocus ? CameraEx.FOCUS_DRIVE_DIRECTION_FAR : CameraEx.FOCUS_DRIVE_DIRECTION_NEAR, speed);
             // startOneShotFocusDrive won't always trigger our FocusDriveListener
             m_handler.postDelayed(m_checkFocusRunnable, 50);
@@ -243,7 +256,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
         {
             case setMin:
                 m_tvMsg.setVisibility(View.GONE);
-                m_focusScaleView.setVisibility(View.VISIBLE);
+                m_lFocusScale.setVisibility(View.VISIBLE);
                 m_focusScaleView.setMinPosition(0);
                 m_tvInstructions.setVisibility(View.VISIBLE);
                 m_tvInstructions.setText("Set minimum focus distance, \uE04C to confirm");
@@ -254,7 +267,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
             case setNumPics:
                 m_tvInstructions.setText("Use dial to select number of pictures, \uE04C to confirm");
                 m_tvMsg.setVisibility(View.VISIBLE);
-                m_focusScaleView.setVisibility(View.GONE);
+                m_lFocusScale.setVisibility(View.GONE);
                 break;
             case shoot:
                 m_tvMsg.setVisibility(View.VISIBLE);
@@ -389,7 +402,6 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
     @Override
     protected void onPause()
     {
-        //Logger.info("onPause");
         super.onPause();
 
         abortShooting();

@@ -10,7 +10,7 @@ import java.io.IOException;
 public class Logger
 {
     public static File getFile() {
-        return new File(Environment.getExternalStorageDirectory(), "FOCUS.TXT");
+        return new File(Environment.getExternalStorageDirectory(), "FOCUSBRK/LOG.TXT");
     }
 
     protected static void log(String msg) {

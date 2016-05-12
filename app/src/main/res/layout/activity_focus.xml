@@ -39,15 +39,40 @@
         android:gravity="center_horizontal"
         android:paddingBottom="4dp"/>
 
-    <com.obsidium.focusbracket.FocusScaleView
-        android:layout_width="fill_parent"
-        android:layout_height="20dp"
-        android:id="@+id/vFocusScale"
-        android:layout_centerHorizontal="true"
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp"
         android:layout_marginBottom="10dp"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
         android:layout_alignParentBottom="true"
-        tools:background="#32722f"/>
+        android:layout_centerHorizontal="true"
+        android:id="@+id/lFocusScale">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ivLeft"
+            android:layout_marginRight="4dp"
+            />
+
+        <com.obsidium.focusbracket.FocusScaleView
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:id="@+id/vFocusScale"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            tools:background="#32722f"
+            android:layout_weight="1"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ivRight"
+            android:layout_marginLeft="4dp"
+            />
+
+    </LinearLayout>
 
 </RelativeLayout>
