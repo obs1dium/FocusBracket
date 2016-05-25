@@ -24,6 +24,8 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
 
     private SurfaceHolder       m_surfaceHolder;
     private CameraEx            m_camera;
+    private CameraEx.AutoPictureReviewControl m_autoReviewControl;
+    private int                 m_pictureReviewTime;
 
     private Handler             m_handler = new Handler();
 
@@ -103,6 +105,8 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
         super.onResume();
         m_camera = CameraEx.open(0, null);
         m_surfaceHolder.addCallback(this);
+        m_autoReviewControl = new CameraEx.AutoPictureReviewControl();
+        m_camera.setAutoPictureReviewControl(m_autoReviewControl);
 
         //noinspection ResourceType
         ((ImageView)findViewById(R.id.ivRight)).setImageResource(p_16_dd_parts_rec_focuscontrol_far);
@@ -278,7 +282,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
     }
 
     /*
-        Sets camera default parameters (manual mode, single shooting, manual focus)
+        Sets camera default parameters (manual mode, single shooting, manual focus, picture review)
      */
     private void setDefaults()
     {
@@ -308,6 +312,10 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
                 }
             }
         }
+
+        // Disable picture review
+        m_pictureReviewTime = m_autoReviewControl.getPictureReviewTime();
+        m_autoReviewControl.setPictureReviewTime(0);
     }
 
     private void abortShooting()
@@ -407,6 +415,9 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
         abortShooting();
 
         m_surfaceHolder.removeCallback(this);
+        m_autoReviewControl.setPictureReviewTime(m_pictureReviewTime);
+        m_camera.setAutoPictureReviewControl(null);
+        m_autoReviewControl = null;
         m_camera.getNormalCamera().stopPreview();
         m_camera.release();
         m_camera = null;

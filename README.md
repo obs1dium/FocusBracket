@@ -8,7 +8,7 @@ Proof-of-concept app for focus bracketing on Sony Alpha cameras using the [OpenM
 Use [Sony-PMCA-RE](https://github.com/ma1co/Sony-PMCA-RE).
 
 ## Usage ##
-* Put your camera into manual mode and set up your shot. Auto review should be disabled.
+* Put your camera into manual mode and set up your shot.
 * Start the app and follow the on-screen instructions.
 * Help/Trash or menu button exits the app.
 
