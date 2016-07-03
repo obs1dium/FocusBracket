@@ -371,6 +371,12 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
         return true;
     }
 
+
+    @Override
+    protected boolean onEnterKeyUp() {
+        return true;
+    }
+
     @Override
     protected boolean onEnterKeyDown()
     {
