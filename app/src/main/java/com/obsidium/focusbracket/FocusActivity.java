@@ -87,6 +87,9 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_focus);
 
+        if (!(Thread.getDefaultUncaughtExceptionHandler() instanceof CustomExceptionHandler))
+            Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler());
+
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         m_surfaceHolder = surfaceView.getHolder();
         m_surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
