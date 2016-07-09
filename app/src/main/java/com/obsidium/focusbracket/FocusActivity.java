@@ -124,6 +124,7 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
             public void onChanged(CameraEx.FocusPosition focusPosition, CameraEx cameraEx)
             {
                 Logger.info("FocusDriveListener: currentPosition " + focusPosition.currentPosition);
+                m_handler.removeCallbacks(m_checkFocusRunnable);
                 m_focusScaleView.setMaxPosition(focusPosition.maxPosition);
                 m_focusScaleView.setCurPosition(focusPosition.currentPosition);
                 m_curFocus = focusPosition.currentPosition;
@@ -175,7 +176,6 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
         m_tvMsg.setVisibility(View.GONE);
         m_tvInstructions.setVisibility(View.GONE);
         m_waitingForFocus = false;
-        m_handler.removeCallbacks(m_checkFocusRunnable);
         m_camera.burstableTakePicture();
     }
 
