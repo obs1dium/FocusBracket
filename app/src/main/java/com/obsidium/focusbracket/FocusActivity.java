@@ -229,9 +229,8 @@ public class FocusActivity extends BaseActivity implements SurfaceHolder.Callbac
         final int focusDiff = m_maxFocus - m_minFocus;
         final int pictureCount = m_pictureCounts.get(m_pictureCountIndex);
         final int step = (int)((float)focusDiff / (float)(pictureCount - 1));
-        int focus = m_minFocus;
-        for (int i = 0; i < pictureCount; ++i, focus += step)
-            m_focusQueue.addLast(focus);
+        for (int i = 0, focus = m_minFocus; i < pictureCount; ++i, focus += step)
+            m_focusQueue.addFirst(focus);
     }
 
     private void initPictureCounts()
